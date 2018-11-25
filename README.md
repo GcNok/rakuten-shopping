@@ -1,2 +1,1 @@
-# rakuten-shopping
-楽天のAPIを使用したテスト
+# coding-test
