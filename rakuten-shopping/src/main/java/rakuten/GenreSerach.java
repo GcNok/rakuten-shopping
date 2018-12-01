@@ -24,6 +24,8 @@ public class GenreSerach extends RakutenAPI {
 		} catch (WebApplicationException e) {
 			LOGGER.severe("ステータスコード：" + e.getResponse().getStatus());
 			throw e;
+		} catch (Exception e) {
+			throw e;
 		}
 	}
 	/**
@@ -40,7 +42,7 @@ public class GenreSerach extends RakutenAPI {
 			String genreId = childNode.get("genreId").asText(); //ジャンルID
 			String genreName = childNode.get("genreName").asText(); //ジャンル名
 
-			//取得したジャンル情報をDBに保存
+			//取得したジャンル情報をgenreテーブルに保存
 			String sql = "insert into genre values(?,?,?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, Integer.parseInt(genreId));

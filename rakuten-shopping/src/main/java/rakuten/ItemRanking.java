@@ -20,8 +20,8 @@ public class ItemRanking extends RakutenAPI {
 	private static final Logger LOGGER = Logger.getLogger(ItemRanking.class.getName());
 
 	/**
-	 *
-	 * @param genreId
+	 * 指定されたジャンルIDを基に楽天商品ランキングAPIにアクセスし、取得した情報を返却する
+	 * @param genreId ジャンルID
 	 * @return
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -63,9 +63,9 @@ public class ItemRanking extends RakutenAPI {
 	 * 楽天商品ランキングAPIからジャンル情報を取得し、各ジャンルごとの人気商品10品の情報を
 	 * item_rankingテーブルに保存する
 	 * @param conn DBのコネクションオブジェクト
-	 * @throws SQLException DBアクセス関係の例外
+	 * @throws SQLException
 	 * @throws IOException
-	 * @throws InterruptedException スレッドの割り込み発生時の例外
+	 * @throws InterruptedException
 	 */
 	public void saveItemRanking(Connection conn) throws SQLException, IOException, InterruptedException {
 
@@ -87,7 +87,7 @@ public class ItemRanking extends RakutenAPI {
 			//楽天商品ランキングAPIにアクセスして、商品情報を取得
 			JsonNode parentNode = getItemInfo(genreId);
 			if (parentNode != null) {
-				//順位が10を超えるまで、商品情報をテーブルに保存する
+				//順位が10を超えるまで、商品情報をテーブルに保存
 				for (JsonNode childNode : parentNode) {
 					int rank = childNode.get("rank").asInt(); //順位
 					if (rank > 10) {
@@ -95,6 +95,8 @@ public class ItemRanking extends RakutenAPI {
 					}
 					String itemName = childNode.get("itemName").asText(); //商品名
 					LOGGER.info("順位:" + rank + " 商品名:" + itemName);
+
+					//商品情報をitem_rankingテーブルに保存
 					sql = "insert into item_ranking values(?,?,?)";
 					ps = conn.prepareStatement(sql);
 					ps.setInt(1, Integer.parseInt(genreId));
