@@ -2,12 +2,15 @@ package rakuten;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class Main {
 
-	//ログ出力用
+	//ログ出力用オブジェクト
 	private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
 	public static void main(String[] args) {
@@ -20,23 +23,24 @@ public class Main {
 		try {
 			conn = DriverManager.getConnection(url, user, pass);
 
-			//ジャンルテーブル削除
-//			String sql = "delete from genre";
-//			PreparedStatement ps = conn.prepareStatement(sql);
-//			ps.executeUpdate();
-//
-//			//APIにアクセスしてジャンルのルート情報を取得
-//			GenreSerach genreSerach = new GenreSerach();
-//			JsonNode parentNode = genreSerach.getGenreInfo("0");
-//
-//			//ジャンル情報を再帰的に3階層までDBに保存
-//			genreSerach.saveGenreInfo(parentNode, conn);
+			//ジャンルテーブルのレコードを全件削除
+			String sql = "delete from genre";
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.executeUpdate();
+
+			//APIにアクセスしてジャンルのルート情報を取得
+			GenreSerach genreSerach = new GenreSerach();
+			JsonNode parentNode = genreSerach.getGenreInfo("0");
+
+			//ジャンル情報を再帰的に3階層までDBに保存
+			genreSerach.saveGenreInfo(parentNode, conn);
 
 			//ジャンルIDを基にAPIにアクセスして商品情報をDBに保存
 			ItemRanking itemRanking = new ItemRanking();
 			itemRanking.saveItemRanking(conn);
 
 		} catch (Exception e) {
+			LOGGER.severe("予期せぬエラーが発生しました。");
 			e.printStackTrace();
 		} finally {
 			// コネクションの解放

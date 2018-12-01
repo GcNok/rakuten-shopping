@@ -12,8 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class GenreSerach extends RakutenAPI {
 
-	//楽天ジャンル検索APIのURL
-	public static final String BASE_URL = "https://app.rakuten.co.jp/";
+	//楽天ジャンル検索APIのパス
 	public static final String PATH_URL = "/services/api/IchibaGenre/Search/20140222";
 
 	//ログ出力用
@@ -21,32 +20,37 @@ public class GenreSerach extends RakutenAPI {
 
 	public JsonNode getGenreInfo(String genreId) throws IOException {
 		try {
-			return super.getInfo(genreId, BASE_URL, PATH_URL, "children");
+			return super.getInfo(genreId, PATH_URL, "children");
 		} catch (WebApplicationException e) {
 			LOGGER.severe("ステータスコード：" + e.getResponse().getStatus());
-
-
 			throw e;
 		}
 	}
-
+	/**
+	 * ジャンル情報をgenreテーブルに保存する
+	 * @param childrenNode ジャンル情報のJSONオブジェクト
+	 * @param conn DBのコネクションオブジェクト
+	 * @throws IOException
+	 * @throws SQLException
+	 */
 	public void saveGenreInfo(JsonNode childrenNode, Connection conn) throws IOException, SQLException {
 
 		for (JsonNode childNode : childrenNode) {
 			int genreLevel = childNode.get("genreLevel").asInt(); //ジャンル階層
 			String genreId = childNode.get("genreId").asText(); //ジャンルID
+			String genreName = childNode.get("genreName").asText(); //ジャンル名
 
 			//取得したジャンル情報をDBに保存
 			String sql = "insert into genre values(?,?,?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, Integer.parseInt(genreId));
-			ps.setString(2, childNode.get("genreName").asText());
+			ps.setString(2, genreName);
 			ps.setInt(3, genreLevel);
 			ps.executeUpdate();
-			LOGGER.info("ジャンル名: " + childNode.get("genreName").asText());
-			LOGGER.info("ジャンル階層：" + genreLevel);
 			LOGGER.info("***************************************************");
-
+			LOGGER.info("ジャンルID: " + genreId);
+			LOGGER.info("ジャンル名: " + genreName);
+			LOGGER.info("ジャンル階層：" + genreLevel);
 			//ジャンル階層が3未満の場合、再帰的にジャンル情報を取得してDBに保存
 			if (genreLevel < 3) {
 				childrenNode = getGenreInfo(genreId);
