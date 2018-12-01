@@ -13,6 +13,10 @@ public class Main {
 	//ログ出力用オブジェクト
 	private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
+	/**
+	 * メイン処理
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		LOGGER.info("処理開始");
 		//ローカルのDBに接続

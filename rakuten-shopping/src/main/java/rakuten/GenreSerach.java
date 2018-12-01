@@ -18,6 +18,12 @@ public class GenreSerach extends RakutenAPI {
 	//ログ出力用
 	private static final Logger LOGGER = Logger.getLogger(ItemRanking.class.getName());
 
+	/**
+	 * 楽天ジャンル検索APIにアクセスし、取得した情報を返却する
+	 * @param genreId ジャンルID
+	 * @return 楽天ジャンル検索APIのレスポンス
+	 * @throws IOException
+	 */
 	public JsonNode getGenreInfo(String genreId) throws IOException {
 		try {
 			return super.getInfo(genreId, PATH_URL, "children");

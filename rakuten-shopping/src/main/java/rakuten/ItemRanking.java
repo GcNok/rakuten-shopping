@@ -22,7 +22,7 @@ public class ItemRanking extends RakutenAPI {
 	/**
 	 * 指定されたジャンルIDを基に楽天商品ランキングAPIにアクセスし、取得した情報を返却する
 	 * @param genreId ジャンルID
-	 * @return
+	 * @return 楽天商品ランキングAPIのレスポンス
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */

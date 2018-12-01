@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * 継承用クラス
+ * 楽天APIアクセス用クラス
  * @author Naoki
  *
  */
