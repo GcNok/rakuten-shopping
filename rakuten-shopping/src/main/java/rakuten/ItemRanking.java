@@ -7,8 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
-import javax.ws.rs.BadRequestException;
-import javax.xml.ws.http.HTTPException;
+import javax.ws.rs.WebApplicationException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -21,20 +20,22 @@ public class ItemRanking extends RakutenAPI {
 	//ログ出力用
 	private static final Logger LOGGER = Logger.getLogger(ItemRanking.class.getName());
 
-	public JsonNode getItemInfo(String genreId) throws IOException {
+	public JsonNode getItemInfo(String genreId) throws IOException, InterruptedException {
 		try {
 			return super.getInfo(genreId, BASE_URL, PATH_URL, "Items");
-		} catch (BadRequestException e) {
-			//対象なしの場合、nullで返す
+		} catch (WebApplicationException e) {
+			int statusCode = e.getResponse().getStatus();
+			if (statusCode == 400 || statusCode == 404) {
+				LOGGER.warning("ステータスコード：" + statusCode);
 				return null;
-		} catch (HTTPException e) {
-			LOGGER.severe("ステータスコード：" + e.getStatusCode());
-			e.printStackTrace();
-			throw e;
+			} else {
+				e.printStackTrace();
+				throw e;
+			}
 		}
 	}
 
-	public void saveItemRanking(Connection conn) throws SQLException, IOException {
+	public void saveItemRanking(Connection conn) throws SQLException, IOException, InterruptedException {
 
 		//item_rankingテーブルのレコードを全件削除
 		String sql = "delete from item_ranking";
@@ -50,6 +51,9 @@ public class ItemRanking extends RakutenAPI {
 		while (rs.next()) {
 			String genreId = rs.getString("genre_id");
 			System.out.println(genreId);
+
+			//リクエスト過多を防ぐため、0.3秒ごとにAPIにアクセスする
+			Thread.sleep(350);
 			JsonNode parentNode = getItemInfo(genreId);
 			if (parentNode != null) {
 				for (JsonNode childNode : parentNode) {

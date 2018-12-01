@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
-import javax.ws.rs.BadRequestException;
+import javax.ws.rs.WebApplicationException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -22,9 +22,10 @@ public class GenreSerach extends RakutenAPI {
 	public JsonNode getGenreInfo(String genreId) throws IOException {
 		try {
 			return super.getInfo(genreId, BASE_URL, PATH_URL, "children");
-		} catch (BadRequestException e) {
+		} catch (WebApplicationException e) {
 			LOGGER.severe("ステータスコード：" + e.getResponse().getStatus());
-			LOGGER.severe("response=" + e.getResponse().readEntity(String.class));
+
+
 			throw e;
 		}
 	}
@@ -42,10 +43,9 @@ public class GenreSerach extends RakutenAPI {
 			ps.setString(2, childNode.get("genreName").asText());
 			ps.setInt(3, genreLevel);
 			ps.executeUpdate();
-
-			System.out.println("ジャンル名: " + childNode.get("genreName").asText());
-			System.out.println("ジャンル階層：" + genreLevel);
-			System.out.println("***************************************************");
+			LOGGER.info("ジャンル名: " + childNode.get("genreName").asText());
+			LOGGER.info("ジャンル階層：" + genreLevel);
+			LOGGER.info("***************************************************");
 
 			//ジャンル階層が3未満の場合、再帰的にジャンル情報を取得してDBに保存
 			if (genreLevel < 3) {

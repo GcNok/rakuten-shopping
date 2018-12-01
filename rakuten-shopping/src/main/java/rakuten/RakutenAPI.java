@@ -2,10 +2,10 @@ package rakuten;
 
 import java.io.IOException;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
-import javax.xml.ws.http.HTTPException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +27,7 @@ public class RakutenAPI {
 			//APIで取得した値からジャンルを取得して出力
 			JsonNode childrenNode = mapper.readTree(result).get(nodeKey);
 			return childrenNode;
-		} catch (HTTPException e) {
+		} catch (WebApplicationException e) {
 			// 例外よりレスポンスの内容やステータスコードを確認可能
 			throw e;
 		}
