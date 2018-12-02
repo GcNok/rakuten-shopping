@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.logging.Logger;
 
 import javax.ws.rs.WebApplicationException;
+
+import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -16,7 +17,7 @@ public class GenreSerach extends RakutenAPI {
 	public static final String PATH_URL = "/services/api/IchibaGenre/Search/20140222";
 
 	//ログ出力用
-	private static final Logger LOGGER = Logger.getLogger(ItemRanking.class.getName());
+	public static final Logger logger = Logger.getLogger(ItemRanking.class.getName());
 
 	/**
 	 * 楽天ジャンル検索APIにアクセスし、取得した情報を返却する
@@ -28,7 +29,7 @@ public class GenreSerach extends RakutenAPI {
 		try {
 			return super.getInfo(genreId, PATH_URL, "children");
 		} catch (WebApplicationException e) {
-			LOGGER.severe("ステータスコード：" + e.getResponse().getStatus());
+			logger.error("ステータスコード：" + e.getResponse().getStatus());
 			throw e;
 		} catch (Exception e) {
 			throw e;
@@ -55,10 +56,10 @@ public class GenreSerach extends RakutenAPI {
 			ps.setString(2, genreName);
 			ps.setInt(3, genreLevel);
 			ps.executeUpdate();
-			LOGGER.info("***************************************************");
-			LOGGER.info("ジャンルID: " + genreId);
-			LOGGER.info("ジャンル名: " + genreName);
-			LOGGER.info("ジャンル階層：" + genreLevel);
+			logger.debug("***************************************************");
+			logger.debug("ジャンルID: " + genreId);
+			logger.debug("ジャンル名: " + genreName);
+			logger.debug("ジャンル階層：" + genreLevel);
 			//ジャンル階層が3未満の場合、再帰的にジャンル情報を取得してDBに保存
 			if (genreLevel < 3) {
 				childrenNode = getGenreInfo(genreId);

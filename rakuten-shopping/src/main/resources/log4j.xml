@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration
+	xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<!-- 標準出力用Appender -->
+	<appender name="Console_Appender"
+		class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<param name="ImmediateFlush" value="true" />
+		<param name="threshold" value="info"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p %d [%t] %m%n" />
+		</layout>
+	</appender>
+
+	<!-- 処理ログ ファイル出力用Appender -->
+	<appender name="File_Appender"
+		class="org.apache.log4j.FileAppender">
+		<param name="File" value="rakuten-shopping.log" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{yyyy/MM/dd HH:mm:ss.SSS} [%t] %-6p %m%n" />
+		</layout>
+	</appender>
+	<root>
+		<level value="debug" />
+		<appender-ref ref="Console_Appender" />
+		<appender-ref ref="File_Appender" />
+	</root>
+</log4j:configuration>

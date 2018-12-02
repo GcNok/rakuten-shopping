@@ -5,9 +5,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Logger;
 
 import javax.ws.rs.WebApplicationException;
+
+import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -17,7 +18,7 @@ public class ItemRanking extends RakutenAPI {
 	public static final String PATH_URL = "/services/api/IchibaItem/Ranking/20170628";
 
 	//ログ出力用
-	private static final Logger LOGGER = Logger.getLogger(ItemRanking.class.getName());
+	public static final Logger logger = Logger.getLogger(ItemRanking.class.getName());
 
 	/**
 	 * 指定されたジャンルIDを基に楽天商品ランキングAPIにアクセスし、取得した情報を返却する
@@ -33,11 +34,12 @@ public class ItemRanking extends RakutenAPI {
 			int statusCode = e.getResponse().getStatus();
 			//HTTPステータスコードが400または404の場合、nullを返す
 			if (statusCode == 400 || statusCode == 404) {
-				LOGGER.warning("対象のデータがありませんでした。 ステータスコード：" + statusCode);
+				logger.debug("対象のデータがありませんでした。 ステータスコード：" + statusCode);
 				return null;
 
 			} else if (statusCode == 429) {
 				//リクエスト過多の場合、1秒後にリトライ
+				logger.debug("リクエスト過多のため、1秒後にリトライします。");
 				Thread.sleep(1000);
 				try {
 					return super.getInfo(genreId, PATH_URL, "Items");
@@ -45,17 +47,18 @@ public class ItemRanking extends RakutenAPI {
 					statusCode = wae.getResponse().getStatus();
 					if (statusCode == 400 || statusCode == 404) {
 						//HTTPステータスコードが400または404の場合、nullを返す
-						LOGGER.warning("対象のデータがありませんでした。 ステータスコード：" + statusCode);
+						logger.debug("対象のデータがありませんでした。 ステータスコード：" + statusCode);
 						return null;
 					} else {
 						throw wae;
 					}
 				}
 			} else {
-				e.printStackTrace();
+				logger.error("リクエストに失敗しました。", e);
 				throw e;
 			}
 		} catch (Exception e) {
+			logger.error("予期せぬ例外が発生しました。", e);
 			throw e;
 		}
 	}
@@ -82,7 +85,7 @@ public class ItemRanking extends RakutenAPI {
 		//取得したジャンルID分ループ処理
 		while (rs.next()) {
 			String genreId = rs.getString("genre_id");
-			LOGGER.info("ジャンルID:" + genreId);
+			logger.debug("ジャンルID:" + genreId);
 
 			//楽天商品ランキングAPIにアクセスして、商品情報を取得
 			JsonNode parentNode = getItemInfo(genreId);
@@ -94,7 +97,7 @@ public class ItemRanking extends RakutenAPI {
 						break;
 					}
 					String itemName = childNode.get("itemName").asText(); //商品名
-					LOGGER.info("順位:" + rank + " 商品名:" + itemName);
+					logger.debug("順位:" + rank + " 商品名:" + itemName);
 
 					//商品情報をitem_rankingテーブルに保存
 					sql = "insert into item_ranking values(?,?,?)";

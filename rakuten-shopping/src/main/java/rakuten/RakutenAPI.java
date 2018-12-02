@@ -6,6 +6,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.apache.log4j.Logger;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,6 +20,9 @@ public class RakutenAPI {
 
 	//楽天APIの基本URL
 	public static final String BASE_URL = "https://app.rakuten.co.jp/";
+
+	//ログ出力用オブジェクト
+	public static final Logger logger = Logger.getLogger(RakutenAPI.class.getName());
 
 	private Client client = ClientBuilder.newClient();
 
@@ -37,6 +42,7 @@ public class RakutenAPI {
 		WebTarget target = client.target(BASE_URL)
 				.path(pathUrl).queryParam("applicationId", "1026301013779899297").queryParam("formatVersion", "2")
 				.queryParam("genreId", genreId);
+		logger.debug(target.getUri());
 		try {
 			//APIにアクセスし、指定された要素配下の情報をJSON形式で返す
 			String result = target.request().get(String.class);
